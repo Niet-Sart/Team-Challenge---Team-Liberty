@@ -58,3 +58,22 @@ class Barco:
                 barco.colocar(posiciones)
                 self.barcos.append(barco)
                 colocado = True
+
+
+## MARÍA
+
+class Barco:
+    def __init__(self, eslora, coordenadas):
+        self.eslora = eslora
+        self.coordenadas = coordenadas
+        
+
+
+class Tablero:
+    def __init__(self, dimensiones=(10, 10)):
+    
+        self.dimensiones = dimensiones
+        self.tablero_barcos = np.zeros(dimensiones, dtype=int) 
+        self.tablero_disparos = np.zeros(dimensiones, dtype=int)
+        self.barcos = []  
+        self.vidas = 0 

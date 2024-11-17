@@ -20,17 +20,18 @@ if __name__ == '__main__':
                 if game.tablero_maquina.disparar(coordenada):
                     print(game.tablero_maquina)
                     print()
+                    # Comprobación victoria
+                    if all([barco.hundido for barco in game.tablero_maquina.barcos]):
+                        print("¡HAS GANADO! ¡ENHORABUENA!")
+                        break
+                    
+                
                     if not game.tablero_maquina.otro_turno:
                         break
             except:
                 print("Parece que la coordenada que has introducido no tiene el formato correcto o se sale de las dimensiones del tablero. Inténtalo de nuevo")
             
-        # Comprobación victoria
-        if all(barco.hundido for barco in game.tablero_maquina.barcos):
-            print("¡HAS GANADO! ¡ENHORABUENA!")
-            break
-        
-        # Turno máquina
+         # Turno máquina
         print("Es el turno de la máquina...")
         print()
         while True:
@@ -38,11 +39,9 @@ if __name__ == '__main__':
             if game.tablero_jugador.disparo_maquina():
                 print(game.tablero_jugador)
                 print()
+                # Comprobación derrota
+                if all([barco.hundido for barco in game.tablero_jugador.barcos]):
+                    print("Has perdido. Más suerte la próxima vez")
+                    break
                 if not game.tablero_jugador.otro_turno:
                     break
-        
-        # Comprobación derrota
-        if all(barco.hundido for barco in game.tablero_jugador.barcos):
-            print("Has perdido. Más suerte la próxima vez")
-            break
-        

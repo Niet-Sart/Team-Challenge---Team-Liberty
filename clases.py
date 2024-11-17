@@ -106,7 +106,7 @@ class Tablero:
     def colocar_barco(self, fila, col, eslora, orientacion):
         coordenadas = []
         if orientacion == "H":
-            for i in range(eslora):
+            for i in range(eslora): # para estos bucles he buscado un poco de ayuda :')
                 self.tablero_barcos[fila, col + i] = eslora
                 coordenadas.append((fila, col + i))
         else:

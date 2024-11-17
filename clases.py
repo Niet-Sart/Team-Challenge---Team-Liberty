@@ -1,9 +1,11 @@
 import random
 
-# Constantes
+# variables definidas conjuntamente
 TAMANO = 10
-CELDA_AGUA = "-"
-CELDA_BARCO = "B"
+CELDA_AGUA = "_"
+CELDA_BARCO = "o"
+
+'''clase Barco inicializa el tamaño del barco y otras propiedades del barco, como asignarle posiciones''''
 
 class Barco:
     def _init_(self, eslora):
@@ -19,8 +21,10 @@ class Barco:
             self.posiciones = posiciones
         else:
             raise ValueError("Las posiciones asignadas no coinciden con la eslora del barco")
+'''clase tablero crea una tablero vacio y una lista de barcos muestra el tablero,coloca un barco en possion aleatoria(yo creo que habria que cambiarlo por la forma que decia Anta)
+  y creo que habria que incluir aqui la funcion disparo tambien'''
 
-  class Tablero:
+class Tablero:
     def _init_(self):
         # Inicializa un tablero vacío de tamaño TAMANO x TAMANO
         self.tablero = [[CELDA_AGUA for _ in range(TAMANO)] for _ in range(TAMANO)]

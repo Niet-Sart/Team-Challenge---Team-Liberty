@@ -62,18 +62,83 @@ class Barco:
 
 ## MARÍA
 
+import numpy as np
+import random
+
 class Barco:
     def __init__(self, eslora, coordenadas):
+        #eslora: Longitud del barco.
+        # coordenadas: Lista de coordenadas donde está ubicado el barco. 
         self.eslora = eslora
         self.coordenadas = coordenadas
-        
+       
+
+    def recibir_disparo(self, coord): #Marca una coordenada como tocada.
+        #coord: Coordenada del disparo.
+        if coord in self.coordenadas:
+            self.tocados.add(coord)
+            return True #return: True si el disparo impacta en este barco.
+        return False
+
+    def esta_hundido(self): #Verifica si el barco está hundido.
+        #return: True si todas las coordenadas del barco han sido tocadas.
+        return set(self.coordenadas) == self.tocados
+
 
 
 class Tablero:
-    def __init__(self, dimensiones=(10, 10)):
+    def __init__(self, size):
+        
+        self.size = size
+        self.tablero_barcos = np.zeros(size, dtype=int)  # Tablero oculto con los barcos
+        self.tablero_disparos = np.zeros(size, dtype=int)  # Tablero visible de disparos
+        self.barcos = []  # Lista de objetos Barco
+
+    def inicializar_tablero(self): # pone los barcos de forma aleatoria
+        configuracion_barcos = {1: 4, 2: 3, 3: 2, 4: 1}  # Eslora: Cantidad
+        
+        
+        # sé que hay que hacer un bucle for que recorra los barcos pero no sé muy bien como
+
+   
+   
+
+    def colocar_barco(self, fila, col, eslora, orientacion):
+        coordenadas = []
+        if orientacion == "H":
+            for i in range(eslora):
+                self.tablero_barcos[fila, col + i] = eslora
+                coordenadas.append((fila, col + i))
+        else:
+            for i in range(eslora):
+                self.tablero_barcos[fila + i, col] = eslora
+                coordenadas.append((fila + i, col))
+        # Crear un nuevo barco y añadirlo a la lista
+        barco = Barco(eslora, coordenadas)
+        self.barcos.append(barco)
     
-        self.dimensiones = dimensiones
-        self.tablero_barcos = np.zeros(dimensiones, dtype=int) 
-        self.tablero_disparos = np.zeros(dimensiones, dtype=int)
-        self.barcos = []  
-        self.vidas = 0 
+
+    def disparo (self, fila, col):
+        
+        if self.tablero_disparos[fila, col] != 0:
+            return "Has repetido tu disparo"
+
+        if self.tablero_barcos[fila, col] > 0:  
+            self.tablero_disparos[fila, col] = 2  
+            for barco in self.barcos:
+                if barco.recibir_disparo((fila, col)):
+                    if barco.esta_hundido():
+                        return f"Impacto y hundiste un barco de eslora {barco.eslora}."
+                    return "Impacto"
+        else:  # Agua
+            self.tablero_disparos[fila, col] = 1  # Marcamos agua con un 1
+            return "Agua"
+
+    def mostrar_tablero(self, mostrar_barcos=False):
+        if mostrar_barcos:
+            print("Tablero con barcos:")
+            print(self.tablero_barcos)
+        print("Tablero de disparos:")
+        print(self.tablero_disparos)
+
+    

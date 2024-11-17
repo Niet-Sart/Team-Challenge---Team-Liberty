@@ -93,7 +93,7 @@ class Tablero:
                 return False
             casilla.hit = True
             barco = casilla.barco
-            if barco.df.map(lambda x: x.hit).all()[0]:
+            if barco.df.map(lambda x: x.hit).all().all():
                 print("¡Tocado y hundido!")
                 barco.hundido = True
                 self.otro_turno = True
@@ -117,6 +117,10 @@ class Tablero:
                     self.last_hit = coordenada
                     print(coordenada)
                     return self.disparar(coordenada)
+            elif casilla == CELDA_AGUA:
+                return self.disparo_maquina()
+        if casilla == CELDA_AGUA:
+            return self.disparo_maquina()
         print(coordenada)
         return self.disparar(coordenada)
             
@@ -143,6 +147,6 @@ class Barco:
                     return CELDA_BARCO
                 else:
                     return CELDA_VACIA
-            
+                
         def hit(self):
             self.hit = True

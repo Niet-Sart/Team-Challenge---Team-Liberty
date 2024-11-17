@@ -1,5 +1,7 @@
-size = 10
-celda_vacia = ''
-celda_barco = 'O'
-celda_tocado = 'X'
-celda_agua = '~'
+DIFICULTAD = 1
+SIZE = 10
+ESLORAS = [1]*4 + [2]*3 + [3]*2 + [4]
+CELDA_VACIA = ''
+CELDA_BARCO = 'O'
+CELDA_TOCADO = 'X'
+CELDA_AGUA = '~'

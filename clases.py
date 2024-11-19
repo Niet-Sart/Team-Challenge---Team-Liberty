@@ -198,6 +198,7 @@ class Tablero:
             Bool: False si se intenta disparar una casilla-barco ya disparada, True en el resto de casos
         """
         intentos = 0
+        if DIFICULTAD < 1: DIFICULTAD = 1 # La dificultad tiene que ser mínimo 1 para que no se rompa el código
         while intentos < DIFICULTAD:
             x = random.choice(self.grid.columns)
             y = random.choice(self.grid.index)

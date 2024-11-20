@@ -7,7 +7,7 @@ def translate_coord(coordenada: str) -> tuple:
     Returns:
         tuple: "A1" devuelve 0, 0; "A2" devuelve 1, 0; "B1" devuelve 0, 1; etc.
     """
-    y, *x = coordenada # Pasamos la letra a la variable y, y las cifras a la variable x
+    y, *x = coordenada.upper() # Pasamos la letra a la variable y, y las cifras a la variable x
     if type(x) == list: x = ''.join(x) # Si x es una lista (caso de coordenadas con números > 9), la pasamos a str
     x = int(x) - 1 # Los índices empiezan por 0, así que hay que restar 1
     y = ord(y) - 64 - 1 # ord("A") == 65 así que ord("A") - 64 == 1. Restamos 1 porque los índices empiezan por 0

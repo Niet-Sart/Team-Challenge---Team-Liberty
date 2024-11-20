@@ -48,7 +48,7 @@ class Tablero:
         self.posiciones_disparadas = []
         for eslora in ESLORAS:
             self.posicionar_aleatorio(eslora)
-        
+
     def __getitem__(self, key):
         """Getter usando el formato de coordenada LETRA+NÚMERO (str)
 
@@ -58,7 +58,7 @@ class Tablero:
         Returns:
             Devuelve el elemento del DataFrame correspondiente a la coordenada
         """
-        k2, *k1 = key
+        k2, *k1 = key.upper()
         if type(k1) == list: k1 = ''.join(k1)
         k1 = int(k1)
         return self.grid.loc[k1, k2]
@@ -73,7 +73,7 @@ class Tablero:
         Returns:
             Devuelve el valor del atributo grid (Pandas.DataFrame)
         """
-        k2, *k1 = key
+        k2, *k1 = key.upper()
         if type(k1) == list: k1 = ''.join(k1)
         k1 = int(k1)
         self.grid.loc[k1, k2] = value
@@ -198,8 +198,9 @@ class Tablero:
             Bool: False si se intenta disparar una casilla-barco ya disparada, True en el resto de casos
         """
         intentos = 0
-        if DIFICULTAD < 1: DIFICULTAD = 1 # La dificultad tiene que ser mínimo 1 para que no se rompa el código
-        while intentos < DIFICULTAD:
+        dificultad = DIFICULTAD
+        if dificultad < 1: dificultad = 1 # La dificultad tiene que ser mínimo 1 para que no se rompa el código
+        while intentos < dificultad:
             x = random.choice(self.grid.columns)
             y = random.choice(self.grid.index)
             coordenada = x+str(y)

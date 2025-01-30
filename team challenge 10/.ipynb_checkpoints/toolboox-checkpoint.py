@@ -221,54 +221,76 @@ def plot_grouped_histograms(df, target_col, columns=None, pvalue=0.05, with_indi
     Retorna:
     List: Lista de columnas categóricas con relación significativa con la columna objetivo.
     """
-    # Verificar que la columna objetivo existe y es numérica
-    if target_col not in df.columns or not pd.api.types.is_numeric_dtype(df[target_col]):
-        print(f"Error: {target_col} no es una columna numérica válida.")
+   # Validaciones iniciales
+    if not isinstance(df, pd.DataFrame):
+        print("Error: 'df' debe ser un DataFrame de pandas.")
         return None
-    
-    # Si no se especifican columnas, usar las categóricas del DataFrame
-    if columns is None:
-        columns = df.select_dtypes(include=['object', 'category']).columns
+    if target_col not in df.columns:
+        print(f"Error: La columna objetivo '{target_col}' no está en el DataFrame.")
+        return None
+    if not pd.api.types.is_numeric_dtype(df[target_col]):
+        print(f"Error: La columna objetivo '{target_col}' no es numérica.")
+        return None
+    if len(df[target_col].unique()) <= 10:
+        print(f"Error: La columna objetivo '{target_col}' no tiene suficiente cardinalidad (debe ser continua).")
+        return None
+    if not isinstance(columns, list):
+        print("Error: 'columns' debe ser una lista.")
+        return None
+    if not isinstance(pvalue, (float, int)) or not (0 < pvalue <= 1):
+        print("Error: 'pvalue' debe ser un número entre 0 y 1.")
+        return None
 
-    significant_columns = []  # Para almacenar las columnas significativas
+    # Si la lista 'columns' está vacía, selecciona todas las columnas categóricas
+    if not columns:
+        columns = df.select_dtypes(include=['object', 'category']).columns.tolist()
 
-    # Iterar sobre las columnas especificadas
+    # Lista para las columnas que cumplen los criterios estadísticos
+    columnas_seleccionadas = []
+
+    # Evaluar las relaciones estadísticas
     for col in columns:
-        # Verificar si la columna es categórica
-        if col not in df.columns or pd.api.types.is_numeric_dtype(df[col]):
+        # Validar que la columna categórica no tenga demasiadas categorías únicas
+        if df[col].nunique() < 2:
+            print(f"Advertencia: La columna '{col}' tiene menos de 2 categorías. Se omitirá.")
+            continue
+        if df[col].nunique() > 50:
+            print(f"Advertencia: La columna '{col}' tiene más de 50 categorías. Se omitirá.")
             continue
 
-        # Agrupar los valores de la columna objetivo por categorías
-        groups = [df[df[col] == value][target_col].dropna() for value in df[col].unique()]
-
-        # Saltar si hay categorías vacías o insuficientes datos
-        if any(len(group) < 2 for group in groups):
-            continue
-
-        # Aplicar ANOVA si los tamaños de los grupos son suficientes, sino Kruskal-Wallis
+        # Realizar el test adecuado
         try:
-            if all(len(group) >= 5 for group in groups):  # Usar ANOVA si hay suficientes datos
-                stat, p_val = f_oneway(*groups)
-            else:  # Usar Kruskal-Wallis si hay pocos datos o si ANOVA no es aplicable
-                stat, p_val = kruskal(*groups)
-        except ValueError:
-            continue  # Ignorar si ocurre un error en las pruebas
+            if df[col].nunique() <= 10:  # Para variables categóricas con pocas categorías, usar Chi-cuadrado
+                contingency_table = pd.crosstab(df[col], df[target_col])
+                _, p_val, _, _ = chi2_contingency(contingency_table)
+            else:  # Para variables categóricas con muchas categorías, usar ANOVA
+                groups = [df[df[col] == category][target_col] for category in df[col].unique()]
+                _, p_val = f_oneway(*groups)
 
-        # Si el p-value cumple el umbral de significancia, añadir la columna a la lista
-        if p_val <= pvalue:
-            significant_columns.append(col)
+            # Verificar si el p-value es menor o igual al umbral
+            if p_val <= pvalue:
+                columnas_seleccionadas.append(col)
 
-            # Mostrar histogramas agrupados si se solicita
-            if with_individual_plot:
-                plt.figure(figsize=(10, 6))
-                df.groupby(col)[target_col].hist(alpha=0.5, bins=10, legend=True)
-                plt.title(f"Distribución de {target_col} por {col}")
-                plt.xlabel(target_col)
-                plt.ylabel('Frecuencia')
-                plt.legend(title=col,bbox_to_anchor=(1.05, 1), loc='upper left')
-                plt.grid(axis='y', linestyle='--', alpha=0.7)
-                plt.tight_layout()
-                plt.show()
+                # Generar el histograma agrupado
+                if not with_individual_plot:
+                    sns.histplot(data=df, x=target_col, hue=col, kde=True, element="step")
+                    plt.title(f"Distribución de {target_col} agrupada por {col}")
+                    plt.show()
+                else:
+                    # Gráficos individuales para cada categoría
+                    unique_values = df[col].unique()
+                    for val in unique_values:
+                        sns.histplot(data=df[df[col] == val], x=target_col, kde=True)
+                        plt.title(f"Distribución de {target_col} para {col} = {val}")
+                        plt.show()
 
-    # Devolver las columnas significativas
-    return significant_columns
+        except Exception as e:
+            print(f"Error al procesar la columna '{col}': {e}")
+            continue
+
+    # Si no se encontraron columnas que cumplan los criterios
+    if not columnas_seleccionadas:
+        print("No se encontraron columnas categóricas que cumplan con los criterios especificados.")
+        return None
+
+    return columnas_seleccionadas
